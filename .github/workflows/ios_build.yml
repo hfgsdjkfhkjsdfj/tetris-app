@@ -10,6 +10,12 @@ on:
 env:
   FLUTTER_VERSION: '3.22.1'
 
+permissions:
+  contents: read
+  actions: write
+  security-events: write
+  id-token: write
+
 jobs:
   build_ios:
     name: Build iOS App
