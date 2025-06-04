@@ -1,0 +1,80 @@
+name: iOS Build and Deploy
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.22.1'
+
+jobs:
+  build_ios:
+    name: Build iOS App
+    runs-on: macos-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: ${{ env.FLUTTER_VERSION }}
+        channel: 'stable'
+    
+    - name: Install dependencies
+      run: flutter pub get
+    
+    - name: Create iOS build directory
+      run: mkdir -p ios/build
+    
+    - name: Import Code Signing Certificates
+      uses: apple-actions/import-codesign-certs@v2
+      with:
+        p12-file-base64: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_P12 }}
+        p12-password: ${{ secrets.IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+      
+    - name: Download Provisioning Profile
+      uses: apple-actions/download-provisioning-profiles@v1
+      with:
+        bundle-id: 'com.kasdsadhj6.tetrisapp'
+        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+    
+    - name: Build iOS App
+      run: |
+        flutter build ios --release --no-codesign
+        cd ios
+        xcodebuild -workspace Runner.xcworkspace \
+                   -scheme Runner \
+                   -configuration Release \
+                   -destination generic/platform=iOS \
+                   -archivePath $PWD/build/Runner.xcarchive \
+                   archive
+    
+    - name: Export IPA
+      run: |
+        cd ios
+        xcodebuild -exportArchive \
+                   -archivePath $PWD/build/Runner.xcarchive \
+                   -exportOptionsPlist ../export_options.plist \
+                   -exportPath $PWD/build/Runner.ipa
+    
+    - name: Upload to TestFlight
+      uses: apple-actions/upload-testflight-build@v1
+      with:
+        app-path: 'ios/build/Runner.ipa/Runner.ipa'
+        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
+        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
+        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: ios-build
+        path: ios/build/Runner.ipa/Runner.ipa
+        retention-days: 30
