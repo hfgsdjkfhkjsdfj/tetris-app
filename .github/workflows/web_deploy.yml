@@ -45,8 +45,8 @@ jobs:
       
     - name: Install Provisioning Profile
       run: |
-        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-        echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/TetrisGame.mobileprovision
+        mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+        echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > "$HOME/Library/MobileDevice/Provisioning Profiles/TetrisGame.mobileprovision"
     
     - name: Build iOS App (Signed for TestFlight)
       run: |
