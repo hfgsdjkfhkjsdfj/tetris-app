@@ -80,21 +80,21 @@ jobs:
                    DEVELOPMENT_TEAM="7HVW84XDMN" \
                    archive
     
-    - name: Export IPA
+    - name: Setup App Store Connect API Key
+      run: |
+        mkdir -p ~/.appstoreconnect/private_keys/
+        echo "${{ secrets.APPSTORE_PRIVATE_KEY }}" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8
+        
+    - name: Export and Upload to TestFlight
       run: |
         cd ios
         xcodebuild -exportArchive \
                    -archivePath $PWD/build/Runner.xcarchive \
                    -exportOptionsPlist ../export_options.plist \
-                   -exportPath $PWD/build/Runner.ipa
-    
-    - name: Upload to TestFlight
-      uses: apple-actions/upload-testflight-build@v1
-      with:
-        app-path: 'ios/build/Runner.ipa/Runner.ipa'
-        issuer-id: ${{ secrets.APPSTORE_ISSUER_ID }}
-        api-key-id: ${{ secrets.APPSTORE_KEY_ID }}
-        api-private-key: ${{ secrets.APPSTORE_PRIVATE_KEY }}
+                   -exportPath $PWD/build/Runner.ipa \
+                   -authenticationKeyPath ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.APPSTORE_KEY_ID }}.p8 \
+                   -authenticationKeyID ${{ secrets.APPSTORE_KEY_ID }} \
+                   -authenticationKeyIssuerID ${{ secrets.APPSTORE_ISSUER_ID }}
     
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4

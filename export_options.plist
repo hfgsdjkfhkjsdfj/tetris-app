@@ -5,14 +5,14 @@
     <key>destination</key>
     <string>upload</string>
     <key>method</key>
-    <string>app-store</string>
+    <string>app-store-connect</string>
     <key>provisioningProfiles</key>
     <dict>
         <key>com.kasdsadhj6.tetrisapp</key>
         <string>Tetris Game Distribution</string>
     </dict>
     <key>signingCertificate</key>
-    <string>iOS Distribution</string>
+    <string>iPhone Distribution</string>
     <key>signingStyle</key>
     <string>manual</string>
     <key>stripSwiftSymbols</key>
