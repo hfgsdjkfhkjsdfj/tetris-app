@@ -45,7 +45,6 @@ jobs:
       
     - name: Install Provisioning Profile
       run: |
-        echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/profile.mobileprovision
         mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
         echo "${{ secrets.PROVISIONING_PROFILE }}" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/TetrisGame.mobileprovision
     
