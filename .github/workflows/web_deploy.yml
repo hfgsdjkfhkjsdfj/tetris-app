@@ -58,6 +58,8 @@ jobs:
     - name: Configure manual code signing
       run: |
         cd ios
+        # Fix Bundle ID to match provisioning profile
+        sed -i '' 's/PRODUCT_BUNDLE_IDENTIFIER = com.example.tetrisApp;/PRODUCT_BUNDLE_IDENTIFIER = com.kasdsadhj6.tetrisapp;/g' Runner.xcodeproj/project.pbxproj
         # Disable automatic signing
         sed -i '' 's/CODE_SIGN_STYLE = Automatic;/CODE_SIGN_STYLE = Manual;/g' Runner.xcodeproj/project.pbxproj
         sed -i '' 's/DEVELOPMENT_TEAM = "";/DEVELOPMENT_TEAM = "7HVW84XDMN";/g' Runner.xcodeproj/project.pbxproj
