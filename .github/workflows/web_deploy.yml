@@ -99,9 +99,29 @@ jobs:
     - name: Upload to TestFlight via xcrun altool
       run: |
         cd ios
-        # Find the actual IPA file
-        IPA_FILE=$(find build/ -name "*.ipa" -type f | head -1)
-        echo "Found IPA file: $IPA_FILE"
+        # Find the actual IPA file and debug
+        echo "Current directory: $(pwd)"
+        echo "Contents of build directory:"
+        ls -la build/ || echo "build directory not found"
+        echo "Looking for IPA files:"
+        find . -name "*.ipa" -type f || echo "No IPA files found"
+        
+        # Try different possible paths
+        if [ -f "build/Runner.ipa/Runner.ipa" ]; then
+          IPA_FILE="build/Runner.ipa/Runner.ipa"
+        elif [ -f "build/Runner.ipa/tetris_app.ipa" ]; then
+          IPA_FILE="build/Runner.ipa/tetris_app.ipa"
+        else
+          IPA_FILE=$(find build/ -name "*.ipa" -type f | head -1)
+        fi
+        
+        echo "Using IPA file: $IPA_FILE"
+        
+        if [ -z "$IPA_FILE" ] || [ ! -f "$IPA_FILE" ]; then
+          echo "Error: IPA file not found!"
+          exit 1
+        fi
+        
         xcrun altool --upload-app \
                      --type ios \
                      --file "$IPA_FILE" \
